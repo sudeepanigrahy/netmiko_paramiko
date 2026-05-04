@@ -38,28 +38,32 @@ def main():
         appcode = str(row["APPCODE"]).strip()
         fqdns = parse_fqdn_list(row["FQDN"])
  
-        # Look up matching row in Sheet2
-        match = df2[df2["APPCODE"].astype(str).str.strip() == appcode]
+        # Look up matching row in Sheet2 (case-insensitive match on App Code)
+        match = df2[df2["App Code"].astype(str).str.strip().str.lower() == appcode.lower()]
  
         if not match.empty:
-            appname    = match.iloc[0]["APPNAME"]
-            custodian  = match.iloc[0]["APPCODE CUSTODIAN"]
-            emails     = match.iloc[0]["EMAILS"]
+            appname   = match.iloc[0]["App Name"]
+            custodian = match.iloc[0]["AppCode Custodian"]
+            emails    = match.iloc[0]["Appcode Custodian and Delegates Email Addresses"]
         else:
             appname = custodian = emails = ""
  
         for i, fqdn in enumerate(fqdns):
             rows.append({
-                "APPCODE"           : appcode,
-                "FQDN"              : fqdn,
-                "APPNAME"           : appname    if i == 0 else "",
-                "APPCODE CUSTODIAN" : custodian  if i == 0 else "",
-                "EMAILS"            : emails     if i == 0 else "",
+                "APPCODE"                                        : appcode,
+                "FQDN"                                           : fqdn,
+                "App Name"                                       : appname    if i == 0 else "",
+                "AppCode Custodian"                              : custodian  if i == 0 else "",
+                "Appcode Custodian and Delegates Email Addresses": emails     if i == 0 else "",
             })
  
     # Write output
     output_df = pd.DataFrame(rows, columns=[
-        "APPCODE", "FQDN", "APPNAME", "APPCODE CUSTODIAN", "EMAILS"
+        "APPCODE",
+        "FQDN",
+        "App Name",
+        "AppCode Custodian",
+        "Appcode Custodian and Delegates Email Addresses",
     ])
     output_df.to_csv(OUTPUT_PATH, index=False)
     print(f"Done! {len(output_df)} rows written to '{OUTPUT_PATH}'")
